@@ -12,10 +12,27 @@ const connection = await mysql.createConnection(config);
 
 export class MovieModel {
   static async getAll({ genre, search }) {
-    const [movies] = await connection.query(
-      `SELECT title, year, director, duration, poster, rate, BIN_TO_UUID(id) as id FROM movie;`
-    );
-    return movies;
+    let queryString = `SELECT title, year, director, duration, poster, rate FROM movie`;
+
+    if (genre && search) {
+        queryString += `
+            JOIN genre_movie AS gm ON movie.id = gm.movie_id
+            JOIN genre AS g ON gm.genre_id = g.id
+            WHERE lower(g.name) = lower('${genre}')
+            AND lower(movie.title) = lower('${search}');
+        `;
+    } else if (genre) {
+        queryString += `
+            JOIN genre_movie AS gm ON movie.id = gm.movie_id
+            JOIN genre AS g ON gm.genre_id = g.id
+            WHERE lower(g.name) = lower('${genre}');
+        `;
+    } else if (search) {
+        queryString += ` WHERE lower(title) = lower('${search}')`;
+    }
+
+    const result = await connection.query(queryString);
+    return result[0];
   }
 
   static async getById({ id }) {
@@ -56,11 +73,13 @@ export class MovieModel {
       [id]
     );
 
-    return movies.affectedRows>0
+    return movies.affectedRows > 0;
   }
 
   static async update({ id, input }) {
-
+    
+    // todo
+    // Revisar 
     const { title, year, director, duration, poster, rate } = input;
 
     const [movies] = await connection.query(
