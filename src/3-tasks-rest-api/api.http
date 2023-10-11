@@ -1,0 +1,16 @@
+### Recuperar información de las tareas
+GET http://localhost:3000/tareas
+
+### Agregar una nueva tarea
+POST http://localhost:3000/tareas
+Content-Type: application/json
+
+{
+  "nombre": "Lavar platos"
+}
+
+### Completar una tarea
+PUT http://localhost:3000/tareas/:id
+
+### Eliminar una tarea
+DELETE http://localhost:3000/tareas/:id
